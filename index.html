@@ -1,0 +1,61 @@
+<html>
+<body style="margin: 0; padding: 0;">
+
+<video id="myVid" playsinline autoplay width=0 height=0 style="padding-top:0px; margin:0px;"></video>
+<canvas id="myCanvas" style="margin:0; padding:0; position: center"></canvas>
+
+<button id="stop" onclick="stop()">Start Exposure</button>
+<button id="start" onclick="start()">Stop Exposure</button>
+
+<button id="toPNG" onclick="exportPNG()">Export PNG</button>
+<script>
+  document.body.scrollTop = 0; // <-- pull the page to the top
+  document.body.style.overflow = 'hidden'; // <-- To hide scrollbar
+
+  const myVid = document.getElementById("myVid");
+
+  const canvas = document.getElementById("myCanvas");
+  const ctx = canvas.getContext("2d");
+  canvas.width = window.innerWidth;
+  canvas.height = window.innerHeight - 25;
+
+  function exportPNG() {
+    var x = window.open();  //open PNG in new tab
+    x.document.open();
+    x.document.write("<image src=" + canvas.toDataURL() + "></image>");
+    x.document.close();
+  }
+
+  function draw(){
+    ctx.drawImage(myVid, 0, 0);
+    requestAnimationFrame(draw);
+  }
+
+
+  navigator.mediaDevices.getUserMedia({video: true}).then(function(stream){
+    var vidTracks = stream.getVideoTracks();
+    console.log(vidTracks);
+    myVid.srcObject = stream;
+    requestAnimationFrame(draw);
+
+  }).catch(function(err){
+    console.log(err.name + ": " + err.message);
+  });
+
+
+  window.addEventListener("resize", function(){
+    canvas.width = window.innerWidth;
+    canvas.height = window.innerHeight-25;
+  });
+/*
+  window.addEventListener("contextmenu", function(e){
+    e.preventDefault();   //stops right click bringing up a menu
+  });
+*/
+
+
+
+
+</script>
+</body>
+</html>
