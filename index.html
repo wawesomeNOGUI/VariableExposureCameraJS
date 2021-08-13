@@ -4,8 +4,9 @@
 <video id="myVid" playsinline autoplay width=0 height=0 style="padding-top:0px; margin:0px;"></video>
 <canvas id="myCanvas" style="margin:0; padding:0; position: center"></canvas>
 
-<button id="stop" onclick="stop()">Start Exposure</button>
-<button id="start" onclick="start()">Stop Exposure</button>
+<button id="stop" onclick="exposure = false;">Stop Exposure</button>
+<button id="start" onclick="exposure = true;">Start Exposure</button>
+<button id="reset" onclick="reset = true;">Reset</button>
 
 <button id="toPNG" onclick="exportPNG()">Export PNG</button>
 <script>
@@ -19,6 +20,9 @@
   canvas.width = window.innerWidth;
   canvas.height = window.innerHeight - 25;
 
+  var exposure = false;
+  var reset = true;
+
   function exportPNG() {
     var x = window.open();  //open PNG in new tab
     x.document.open();
@@ -26,8 +30,29 @@
     x.document.close();
   }
 
+  var flip = 1;
+
   function draw(){
-    ctx.drawImage(myVid, 0, 0);
+    if(reset){
+      exposure = false;
+      reset = false;
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+    }
+
+    if(exposure){
+      //flip ^= 1;
+      if(flip){
+        ctx.globalCompositeOperation = "soft-light";
+      }else{
+        ctx.globalCompositeOperation = "hard-light";
+      }
+
+      ctx.drawImage(myVid, 0, 0);
+    }else{
+      ctx.globalCompositeOperation = "source-over";
+    }
+
+
     requestAnimationFrame(draw);
   }
 
