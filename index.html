@@ -40,16 +40,32 @@
     }
 
     if(exposure){
-      //flip ^= 1;
+
+      flip ^= 1;
+      /*
       if(flip){
         ctx.globalCompositeOperation = "soft-light";
       }else{
         ctx.globalCompositeOperation = "hard-light";
       }
+      */
+
+      /*
+      if(flip){
+        ctx.globalCompositeOperation = "difference";
+      }else{
+        ctx.globalCompositeOperation = "soft-light";
+      }
+      */
+      //Just using differnce looks pretty cool, fairly close to real exposure
+      ctx.globalCompositeOperation = "difference";
+      
 
       ctx.drawImage(myVid, 0, 0);
     }else{
-      ctx.globalCompositeOperation = "source-over";
+      //ctx.globalCompositeOperation = "source-over";
+    //  ctx.drawImage(myVid, 0, 0);
+
     }
 
 
