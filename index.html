@@ -3,7 +3,6 @@
 
 <video id="myVid" playsinline autoplay width=0 height=0 style="padding-top:0px; margin:0px;"></video>
 <canvas id="myCanvas" style="margin:0; padding:0; position: center"></canvas>
-<canvas id="canvas2"></canvas>
 
 <button id="stop" onclick="exposure = false;">Stop Exposure</button>
 <button id="start" onclick="exposure = true;">Start Exposure</button>
@@ -13,7 +12,7 @@
 
 <script>
   document.body.scrollTop = 0; // <-- pull the page to the top
-  //document.body.style.overflow = 'hidden'; // <-- To hide scrollbar
+  document.body.style.overflow = 'hidden'; // <-- To hide scrollbar
 
   const myVid = document.getElementById("myVid");
 
