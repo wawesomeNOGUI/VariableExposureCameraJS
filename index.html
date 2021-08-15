@@ -3,15 +3,17 @@
 
 <video id="myVid" playsinline autoplay width=0 height=0 style="padding-top:0px; margin:0px;"></video>
 <canvas id="myCanvas" style="margin:0; padding:0; position: center"></canvas>
+<canvas id="canvas2"></canvas>
 
 <button id="stop" onclick="exposure = false;">Stop Exposure</button>
 <button id="start" onclick="exposure = true;">Start Exposure</button>
 <button id="reset" onclick="reset = true;">Reset</button>
 
 <button id="toPNG" onclick="exportPNG()">Export PNG</button>
+
 <script>
   document.body.scrollTop = 0; // <-- pull the page to the top
-  document.body.style.overflow = 'hidden'; // <-- To hide scrollbar
+  //document.body.style.overflow = 'hidden'; // <-- To hide scrollbar
 
   const myVid = document.getElementById("myVid");
 
@@ -19,6 +21,13 @@
   const ctx = canvas.getContext("2d");
   canvas.width = window.innerWidth;
   canvas.height = window.innerHeight - 25;
+
+  //Will be offscreen canvas because we don't offscreen.append to html
+  //Used for copying current frames pixels to check against previous frame
+  const offscreen = document.createElement('canvas');
+  const offCtx = offscreen.getContext("2d");
+  offscreen.width = myVid.width;
+  offscreen.height = myVid.height;
 
   var exposure = false;
   var reset = true;
@@ -31,6 +40,8 @@
   }
 
   var flip = 1;
+  var data;
+  var prevData;
 
   function draw(){
     if(reset){
@@ -58,10 +69,34 @@
       }
       */
       //Just using differnce looks pretty cool, fairly close to real exposure
-      ctx.globalCompositeOperation = "difference";
-      
+      //ctx.globalCompositeOperation = "difference";
 
-      ctx.drawImage(myVid, 0, 0);
+      prevData = ctx.getImageData();
+
+      offCtx.drawImage(myVid, 0, 0);
+      data = offCtx.getImageData();
+
+      for(var i = 0; i<data.length; i++){
+        if(Math.abs(data[i*4] - prevData[i*4]) < 5) {  //red
+          if(Math.abs(data[i*4 + 1] - prevData[i*4 + 1]) < 5) {  //green
+            if(Math.abs(data[i*4 + 2] - prevData[i*4 + 2]) < 5) {  //blue
+              if(Math.abs(data[i*4 + 3] - prevData[i*4 + 3]) < 5) {  //alpha
+                //do nothing, that pixel is the same as the previous frame
+                continue;
+              }
+            }
+          }
+        }
+
+        //Otherwise average previous pixel with new pixel color
+        data[i*4] = (prevData[i*4] + data[i*4])/2;
+        data[i*4 + 1] = (prevData[i*4 + 1] + data[i*4 + 1])/2;
+        data[i*4 + 2] = (prevData[i*4 + 2] + data[i*4 + 2])/2;
+        data[i*4 + 3] = (prevData[i*4 + 3] + data[i*4 + 3])/2;
+      }
+
+      ctx.drawImage(data, 0, 0;)
+      //ctx.drawImage(myVid, 0, 0);
     }else{
       //ctx.globalCompositeOperation = "source-over";
     //  ctx.drawImage(myVid, 0, 0);
