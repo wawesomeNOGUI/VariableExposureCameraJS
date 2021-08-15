@@ -1,14 +1,18 @@
 <html>
 <body style="margin: 0; padding: 0;">
 
-<video id="myVid" playsinline autoplay width=0 height=0 style="padding-top:0px; margin:0px;"></video>
+<video id="myVid" playsinline autoplay style="display: none;"></video>
 <canvas id="myCanvas" style="margin:0; padding:0; position: center"></canvas>
+<canvas id="offscreenCanvas" style="display: none;"></canvas>
 
 <button id="stop" onclick="exposure = false;">Stop Exposure</button>
 <button id="start" onclick="exposure = true;">Start Exposure</button>
 <button id="reset" onclick="reset = true;">Reset</button>
 
 <button id="toPNG" onclick="exportPNG()">Export PNG</button>
+Leniancy
+<input id="leniancy" type="range" min="1" max="100" value="50"></input>
+
 
 <script>
   document.body.scrollTop = 0; // <-- pull the page to the top
@@ -21,15 +25,19 @@
   canvas.width = window.innerWidth;
   canvas.height = window.innerHeight - 25;
 
-  //Will be offscreen canvas because we don't offscreen.append to html
+  //Will be offscreen canvas because display: none
   //Used for copying current frames pixels to check against previous frame
-  const offscreen = document.createElement('canvas');
+  const offscreen = document.getElementById("offscreenCanvas");
   const offCtx = offscreen.getContext("2d");
   offscreen.width = canvas.width;
   offscreen.height = canvas.height;
 
   var exposure = false;
   var reset = true;
+
+  var data;
+  var prevData;
+  var leniancy = document.getElementById("leniancy").value;  //leniancy in color
 
   function exportPNG() {
     var x = window.open();  //open PNG in new tab
@@ -39,10 +47,9 @@
   }
 
   var flip = 1;
-  var data;
-  var prevData;
 
-  ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+  //ctx.fillRect(0, 0, canvas.width, canvas.height);
 
   function draw(){
     if(reset){
@@ -75,14 +82,15 @@
       prevData = ctx.getImageData(0, 0, canvas.width, canvas.height);
 
       offCtx.drawImage(myVid, 0, 0);
-      data = offCtx.getImageData(0, 0, offscreen.width, offscreen.height);
+      currData = offCtx.getImageData(0, 0, offscreen.width, offscreen.height);
 
-      for(var i = 0; i<data.length; i++){
-        if(Math.abs(data[i*4] - prevData[i*4]) < 5) {  //red
-          if(Math.abs(data[i*4 + 1] - prevData[i*4 + 1]) < 5) {  //green
-            if(Math.abs(data[i*4 + 2] - prevData[i*4 + 2]) < 5) {  //blue
-              if(Math.abs(data[i*4 + 3] - prevData[i*4 + 3]) < 5) {  //alpha
+      for(var i = 0; i<currData.data.length; i++){
+        if(Math.abs(currData.data[i*4] - prevData.data[i*4]) < leniancy) {  //red
+          if(Math.abs(currData.data[i*4 + 1] - prevData.data[i*4 + 1]) < leniancy) {  //green
+            if(Math.abs(currData.data[i*4 + 2] - prevData.data[i*4 + 2]) < leniancy) {  //blue
+              if(Math.abs(currData.data[i*4 + 3] - prevData.data[i*4 + 3]) < leniancy) {  //alpha
                 //do nothing, that pixel is the same as the previous frame
+                //console.log("yup")
                 continue;
               }
             }
@@ -90,17 +98,17 @@
         }
 
         //Otherwise average previous pixel with new pixel color
-        prevData[i*4] = (prevData[i*4] + data[i*4])/2;
-        prevData[i*4 + 1] = (prevData[i*4 + 1] + data[i*4 + 1])/2;
-        prevData[i*4 + 2] = (prevData[i*4 + 2] + data[i*4 + 2])/2;
-        prevData[i*4 + 3] = (prevData[i*4 + 3] + data[i*4 + 3])/2;
+        prevData.data[i*4] = (prevData.data[i*4] + currData.data[i*4])/2;
+        prevData.data[i*4 + 1] = (prevData.data[i*4 + 1] + currData.data[i*4 + 1])/2;
+        prevData.data[i*4 + 2] = (prevData.data[i*4 + 2] + currData.data[i*4 + 2])/2;
+        prevData.data[i*4 + 3] = (prevData.data[i*4 + 3] + currData.data[i*4 + 3])/2;
       }
 
       ctx.putImageData(prevData, 0, 0);
       //ctx.drawImage(myVid, 0, 0);
     }else{
       //ctx.globalCompositeOperation = "source-over";
-    //  ctx.drawImage(myVid, 0, 0);
+      //ctx.drawImage(myVid, 0, 0);
 
     }
 
