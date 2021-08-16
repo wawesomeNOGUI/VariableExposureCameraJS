@@ -122,7 +122,7 @@ Leniancy
   }
 
 
-  navigator.mediaDevices.getDisplayMedia({video: true}).then(function(stream){
+  navigator.mediaDevices.getUserMedia({video: true}).then(function(stream){
     var vidTracks = stream.getVideoTracks();
     console.log(vidTracks);
     myVid.srcObject = stream;
