@@ -6,7 +6,7 @@
 <canvas id="offscreenCanvas" style="display: none;"></canvas>
 
 <button id="stop" onclick="exposure = false;">Stop Exposure</button>
-<button id="start" onclick="exposure = true; ctx.fillRect(0, 0, canvas.width, canvas.height);">Start Exposure</button>
+<button id="start" onclick="exposure = true; ctx.fillRect(0, 0, canvas.width, canvas.height)">Start Exposure</button>
 <button id="reset" onclick="reset = true;">Reset</button>
 
 <button id="toPNG" onclick="exportPNG()">Export PNG</button>
@@ -103,6 +103,13 @@ Leniancy
         prevData.data[i*4 + 1] += Math.ceil( (prevData.data[i*4 + 1] + currData.data[i*4 + 1])/500 );
         prevData.data[i*4 + 2] += Math.ceil( (prevData.data[i*4 + 2] + currData.data[i*4 + 2])/500 );
         prevData.data[i*4 + 3] += Math.ceil( (prevData.data[i*4 + 3] + currData.data[i*4 + 3])/500 );
+
+        //A cool setting that produces weird funky "shimmery" irridescent-ish pics if starting from a white background
+        // prevData.data[i*4] += (prevData.data[i*4] + currData.data[i*4])/50;
+        // prevData.data[i*4 + 1] += (prevData.data[i*4 + 1] + currData.data[i*4 + 1])/50;
+        // prevData.data[i*4 + 2] += (prevData.data[i*4 + 2] + currData.data[i*4 + 2])/50;
+        // prevData.data[i*4 + 3] += (prevData.data[i*4 + 3] + currData.data[i*4 + 3])/50;
+
 
         //Maybe just replace pixels with new ones
         // prevData.data[i*4] = currData.data[i*4];
