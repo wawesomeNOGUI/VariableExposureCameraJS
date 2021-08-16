@@ -6,7 +6,7 @@
 <canvas id="offscreenCanvas" style="display: none;"></canvas>
 
 <button id="stop" onclick="exposure = false;">Stop Exposure</button>
-<button id="start" onclick="exposure = true;">Start Exposure</button>
+<button id="start" onclick="exposure = true; ctx.fillRect(0, 0, canvas.width, canvas.height);">Start Exposure</button>
 <button id="reset" onclick="reset = true;">Reset</button>
 
 <button id="toPNG" onclick="exportPNG()">Export PNG</button>
@@ -98,10 +98,18 @@ Leniancy
         }
 
         //Otherwise average previous pixel with new pixel color
-        prevData.data[i*4] += (prevData.data[i*4] + currData.data[i*4])/50;
-        prevData.data[i*4 + 1] += (prevData.data[i*4 + 1] + currData.data[i*4 + 1])/50;
-        prevData.data[i*4 + 2] += (prevData.data[i*4 + 2] + currData.data[i*4 + 2])/50;
-        prevData.data[i*4 + 3] += (prevData.data[i*4 + 3] + currData.data[i*4 + 3])/50;
+        //Math.ceil to make sure nothing rounds down and gets darker
+        prevData.data[i*4] += Math.ceil( (prevData.data[i*4] + currData.data[i*4])/500 );
+        prevData.data[i*4 + 1] += Math.ceil( (prevData.data[i*4 + 1] + currData.data[i*4 + 1])/500 );
+        prevData.data[i*4 + 2] += Math.ceil( (prevData.data[i*4 + 2] + currData.data[i*4 + 2])/500 );
+        prevData.data[i*4 + 3] += Math.ceil( (prevData.data[i*4 + 3] + currData.data[i*4 + 3])/500 );
+
+        //Maybe just replace pixels with new ones
+        // prevData.data[i*4] = currData.data[i*4];
+        // prevData.data[i*4 + 1] = currData.data[i*4 + 1];
+        // prevData.data[i*4 + 2] = currData.data[i*4 + 2];
+        // prevData.data[i*4 + 3] = currData.data[i*4 + 3];
+
         // prevData.data[i*4] = prevData.data[i*4] ^ currData.data[i*4];
         // prevData.data[i*4 + 1] = prevData.data[i*4 + 1] ^ currData.data[i*4 + 1];
         // prevData.data[i*4 + 2] = prevData.data[i*4 + 2] ^ currData.data[i*4 + 2];
@@ -122,7 +130,7 @@ Leniancy
   }
 
 
-  navigator.mediaDevices.getUserMedia({video: true}).then(function(stream){
+  navigator.mediaDevices.getDisplayMedia({video: true}).then(function(stream){
     var vidTracks = stream.getVideoTracks();
     console.log(vidTracks);
     myVid.srcObject = stream;
