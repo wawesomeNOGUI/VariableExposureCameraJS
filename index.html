@@ -84,11 +84,17 @@ Leniancy
       offCtx.drawImage(myVid, 0, 0);
       currData = offCtx.getImageData(0, 0, offscreen.width, offscreen.height);
 
-      for(var i = 0; i<currData.data.length; i++){
-        if(Math.abs(currData.data[i*4] - prevData.data[i*4]) < leniancy) {  //red
-          if(Math.abs(currData.data[i*4 + 1] - prevData.data[i*4 + 1]) < leniancy) {  //green
-            if(Math.abs(currData.data[i*4 + 2] - prevData.data[i*4 + 2]) < leniancy) {  //blue
-              if(Math.abs(currData.data[i*4 + 3] - prevData.data[i*4 + 3]) < leniancy) {  //alpha
+      //A pointer to the data for a speed increase
+      //when accessing the data in the for loop
+      tempDataP = prevData.data;
+      tempDataC = currData.data;
+
+
+      for(var i = 0; i<tempDataC.length; i++){
+        if(Math.abs(tempDataC[i*4] - tempDataP[i*4]) < leniancy) {  //red
+          if(Math.abs(tempDataC[i*4 + 1] - tempDataP[i*4 + 1]) < leniancy) {  //green
+            if(Math.abs(tempDataC[i*4 + 2] - tempDataP[i*4 + 2]) < leniancy) {  //blue
+              if(Math.abs(tempDataC[i*4 + 3] - tempDataP[i*4 + 3]) < leniancy) {  //alpha
                 //do nothing, that pixel is the same as the previous frame
                 //console.log("yup")
                 continue;
@@ -99,10 +105,10 @@ Leniancy
 
         //Otherwise average previous pixel with new pixel color
         //Math.ceil to make sure nothing rounds down and gets darker
-        prevData.data[i*4] += Math.ceil( (prevData.data[i*4] + currData.data[i*4])/500 );
-        prevData.data[i*4 + 1] += Math.ceil( (prevData.data[i*4 + 1] + currData.data[i*4 + 1])/500 );
-        prevData.data[i*4 + 2] += Math.ceil( (prevData.data[i*4 + 2] + currData.data[i*4 + 2])/500 );
-        prevData.data[i*4 + 3] += Math.ceil( (prevData.data[i*4 + 3] + currData.data[i*4 + 3])/500 );
+        tempDataP[i*4] += Math.ceil( (tempDataP[i*4] + tempDataC[i*4])/500 );
+        tempDataP[i*4 + 1] += Math.ceil( (tempDataP[i*4 + 1] + tempDataC[i*4 + 1])/500 );
+        tempDataP[i*4 + 2] += Math.ceil( (tempDataP[i*4 + 2] + tempDataC[i*4 + 2])/500 );
+        tempDataP[i*4 + 3] += Math.ceil( (tempDataP[i*4 + 3] + tempDataC[i*4 + 3])/500 );
 
         //A cool setting that produces weird funky "shimmery" irridescent-ish pics if starting from a white background
         // prevData.data[i*4] += (prevData.data[i*4] + currData.data[i*4])/50;
@@ -122,6 +128,7 @@ Leniancy
         // prevData.data[i*4 + 2] = prevData.data[i*4 + 2] ^ currData.data[i*4 + 2];
         // prevData.data[i*4 + 3] = prevData.data[i*4 + 3] ^ currData.data[i*4 + 3];
       }
+
 
       ctx.putImageData(prevData, 0, 0);
 
