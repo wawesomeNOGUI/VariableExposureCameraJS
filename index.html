@@ -5,8 +5,8 @@
 <canvas id="myCanvas" style="margin:0; padding:0; position: center"></canvas>
 <canvas id="offscreenCanvas" style="display: none;"></canvas>
 
-<button id="stop" onclick="exposure = false;">Stop Exposure</button>
-<button id="start" onclick="exposure = true; ctx.fillRect(0, 0, canvas.width, canvas.height);">Start Exposure</button>
+<button id="stop" onclick="exposure = false; stopped = true;">Stop Exposure</button>
+<button id="start" onclick="exposure = true; stopped = false; ctx.fillRect(0, 0, canvas.width, canvas.height);">Start Exposure</button>
 <button id="reset" onclick="reset = true;">Reset</button>
 
 <button id="toPNG" onclick="exportPNG()">Export PNG</button>
@@ -33,7 +33,8 @@ Leniancy
   offscreen.height = canvas.height;
 
   var exposure = false;
-  var reset = true;
+  var stopped = false;
+  var reset = false;
 
   var data;
   var prevData;
@@ -54,11 +55,12 @@ Leniancy
   function draw(){
     if(reset){
       exposure = false;
+      stopped = false;
       reset = false;
       ctx.clearRect(0, 0, canvas.width, canvas.height);
     }
 
-    if(exposure){
+    if(exposure && !stopped){
 
       //flip ^= 1;
       /*
@@ -133,9 +135,9 @@ Leniancy
       ctx.putImageData(prevData, 0, 0);
 
       //ctx.drawImage(myVid, 0, 0);
-    }else{
+    }else if (!stopped){
       //ctx.globalCompositeOperation = "source-over";
-      //ctx.drawImage(myVid, 0, 0);
+      ctx.drawImage(myVid, 0, 0);
 
     }
 
@@ -144,7 +146,9 @@ Leniancy
   }
 
 
-  navigator.mediaDevices.getDisplayMedia({video: true}).then(function(stream){
+  //navigator.mediaDevices.getDisplayMedia({video: true}).then(function(stream){
+  navigator.mediaDevices.getUserMedia({video: true}).then(function(stream){
+
     var vidTracks = stream.getVideoTracks();
     console.log(vidTracks);
     myVid.srcObject = stream;
