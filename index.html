@@ -48,6 +48,28 @@ Divisor
     x.document.write("<image src=" + canvas.toDataURL() + "></image>");
     x.document.close();
   }
+  
+ function normalizeColor(r, g, b){  //removes intensity but preserves color (taken from Quake 3 source code/game/q_math.c
+   var max;
+   
+   max = r;
+   if(g > max){
+     max = g;
+   } 
+   if(b > max){
+    max = b; 
+   }
+   
+   if (max == 0){
+     //color is black
+   }else{
+     r = r/max;
+     g = g/max;
+     b = b/max;
+   }
+   
+   return [r, g, b, 0]
+ }
 
   var flip = 1;
 
