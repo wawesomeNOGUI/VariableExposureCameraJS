@@ -6,7 +6,7 @@
 <canvas id="offscreenCanvas" style="display: none;"></canvas>
 
 <button id="stop" onclick="exposure = false; stopped = true;">Stop Exposure</button>
-<button id="start" onclick="exposure = true; stopped = false; ctx.fillRect(0, 0, canvas.width, canvas.height);">Start Exposure</button>
+<button id="start" onclick="exposure = true; stopped = false;">Start Exposure</button>
 <button id="reset" onclick="reset = true;">Reset</button>
 
 <button id="toPNG" onclick="exportPNG()">Export PNG</button>
@@ -37,6 +37,7 @@ Divisor
   var stopped = false;
   var reset = false;
 
+  var finalColor;
   var data;
   var prevData;
   var leniancy = document.getElementById("leniancy").value;  //leniancy in deciding what colors changed from last frame
@@ -49,7 +50,29 @@ Divisor
     x.document.close();
   }
 
-  var flip = 1;
+  //removes intensity but preserves color (taken from Quake 3 source code/game/q_math.c
+
+  function normalizeColor(r, g, b){
+   var max;
+
+   max = r;
+   if(g > max){
+     max = g;
+   }
+   if(b > max){
+    max = b;
+   }
+
+   if (max == 0){
+     //color is black
+   }else{
+     r = r/max;
+     g = g/max;
+     b = b/max;
+   }
+
+   return [r, g, b]
+ }
 
 
   //ctx.fillRect(0, 0, canvas.width, canvas.height);
@@ -95,6 +118,7 @@ Divisor
 
 
       for(var i = 0; i<tempDataC.length; i++){
+
         if(Math.abs(tempDataC[i*4] - tempDataP[i*4]) < leniancy) {  //red
           if(Math.abs(tempDataC[i*4 + 1] - tempDataP[i*4 + 1]) < leniancy) {  //green
             if(Math.abs(tempDataC[i*4 + 2] - tempDataP[i*4 + 2]) < leniancy) {  //blue
@@ -107,13 +131,16 @@ Divisor
           }
         }
 
+
         //Otherwise average previous pixel with new pixel color
         //Math.ceil to make sure nothing rounds down and gets darker
+        /*
         tempDataP[i*4] += Math.ceil( (tempDataP[i*4] + tempDataC[i*4])/divisor );
         tempDataP[i*4 + 1] += Math.ceil( (tempDataP[i*4 + 1] + tempDataC[i*4 + 1])/divisor );
         tempDataP[i*4 + 2] += Math.ceil( (tempDataP[i*4 + 2] + tempDataC[i*4 + 2])/divisor );
         tempDataP[i*4 + 3] += Math.ceil( (tempDataP[i*4 + 3] + tempDataC[i*4 + 3])/divisor );
-
+        */
+        
         //A cool setting that produces weird funky "shimmery" irridescent-ish pics if starting from a white background
         // prevData.data[i*4] += (prevData.data[i*4] + currData.data[i*4])/50;
         // prevData.data[i*4 + 1] += (prevData.data[i*4 + 1] + currData.data[i*4 + 1])/50;
@@ -131,6 +158,20 @@ Divisor
         // prevData.data[i*4 + 1] = prevData.data[i*4 + 1] ^ currData.data[i*4 + 1];
         // prevData.data[i*4 + 2] = prevData.data[i*4 + 2] ^ currData.data[i*4 + 2];
         // prevData.data[i*4 + 3] = prevData.data[i*4 + 3] ^ currData.data[i*4 + 3];
+
+        //normalizeColor method
+        tempDataP[i*4] += Math.ceil( (tempDataP[i*4] + tempDataC[i*4])/divisor );
+        tempDataP[i*4 + 1] += Math.ceil( (tempDataP[i*4 + 1] + tempDataC[i*4 + 1])/divisor );
+        tempDataP[i*4 + 2] += Math.ceil( (tempDataP[i*4 + 2] + tempDataC[i*4 + 2])/divisor );
+        tempDataP[i*4 + 3] += Math.ceil( (tempDataP[i*4 + 3] + tempDataC[i*4 + 3])/divisor );
+
+        finalColor = normalizeColor(tempDataP[i*4], tempDataP[i*4 + 1], tempDataP[i*4 + 2]);
+
+        //Set to the normalized version of that color
+        tempDataP[i*4] *= finalColor[0];
+        tempDataP[i*4 + 1] *= finalColor[0];
+        tempDataP[i*4 + 2] *= finalColor[0];
+
       }
 
 
